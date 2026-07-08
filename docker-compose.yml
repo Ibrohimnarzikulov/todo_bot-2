@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16
-    container_name: todo_bot_db
+    container_name: todo_app_uz_bot_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-macbookair}
