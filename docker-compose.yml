@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: todo_bot_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-macbookair}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-1111}
+      POSTGRES_DB: ${POSTGRES_DB:-todo_bot}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-macbookair}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aiogram_bot
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-macbookair}:${POSTGRES_PASSWORD:-1111}@db:5432/${POSTGRES_DB:-todo_bot}
+      - DEFAULT_REMINDER_TIME=${DEFAULT_REMINDER_TIME:-09:00}
+    restart: unless-stopped
+
+volumes:
+  pgdata:
